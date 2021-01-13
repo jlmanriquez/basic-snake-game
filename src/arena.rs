@@ -3,6 +3,7 @@ use crate::snake::{Direction, Snake};
 use crate::BLACK;
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs};
+use rand::Rng;
 
 pub struct Arena {
     gl: GlGraphics,
@@ -16,7 +17,7 @@ impl Arena {
         Arena {
             gl,
             snake: Snake::new(),
-            food: vec![Food::new((30.0, 0.0)), Food::new((60.0, 40.0))],
+            food: create_food(10),
             color: BLACK,
         }
     }
@@ -58,4 +59,18 @@ impl Arena {
             self.snake.growing_up();
         }
     }
+}
+
+fn create_food(n: i32) -> Vec<Food> {
+    let mut food = Vec::new();
+
+    for _ in 0..n {
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range(0..29) * 10;
+        let y = rng.gen_range(0..29) * 10;
+
+        food.push(Food::new((x as f64, y as f64)));
+    }
+
+    food
 }
