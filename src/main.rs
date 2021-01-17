@@ -14,19 +14,22 @@ use piston::{
 const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 0.0];
 const YELLOW: [f32; 4] = [1.0, 1.0, 0.0, 1.0];
+const BLUE: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
 type Coord = (f64, f64);
 
 fn main() {
     let opengl = OpenGL::V3_2;
+    let width = 300;
+    let height = 300;
 
-    let mut window: Window = WindowSettings::new("spinning-square", [300, 300])
+    let mut window: Window = WindowSettings::new("spinning-square", [width, height])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
         .unwrap();
 
-    let mut arena = Arena::new(GlGraphics::new(opengl));
+    let mut arena = Arena::new(GlGraphics::new(opengl), width, height);
 
     let mut events = Events::new(EventSettings::new()).ups(8);
     while let Some(e) = events.next(&mut window) {
