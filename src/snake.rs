@@ -1,7 +1,7 @@
 use opengl_graphics::GlGraphics;
 use piston::RenderArgs;
 
-use crate::{Coord, RED};
+use crate::{get_new_coord, Coord, RED};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Direction {
@@ -37,6 +37,10 @@ impl Snake {
         });
     }
 
+    pub fn get_head(&self) -> Coord {
+        *self.body.get(0).unwrap()
+    }
+
     pub fn move_along(&mut self) -> Coord {
         let head = self.body[0];
         let new_head_position = get_new_coord(head, self.direction, self.size);
@@ -53,7 +57,7 @@ impl Snake {
             }
         }
 
-        head
+        new_head_position
     }
 
     pub fn growing_up(&mut self) {
@@ -62,20 +66,26 @@ impl Snake {
         self.body.push(new_coord);
     }
 
-    pub fn set_direction(&mut self, direction: Direction) {
-        self.direction = direction;
+    pub fn set_direction(&mut self, new_direction: Direction) {
+        if (self.direction == Direction::UP && new_direction == Direction::DOWN)
+            || (self.direction == Direction::DOWN && new_direction == Direction::UP)
+            || (self.direction == Direction::RIGHT && new_direction == Direction::LEFT)
+            || (self.direction == Direction::LEFT && new_direction == Direction::RIGHT)
+        {
+            return;
+        }
+
+        self.direction = new_direction;
     }
 
     pub fn direction(&self) -> Direction {
         self.direction
     }
-}
 
-fn get_new_coord(origin: Coord, direction: Direction, size: f64) -> Coord {
-    match direction {
-        Direction::UP => (origin.0, origin.1 - size),
-        Direction::LEFT => (origin.0 - size, origin.1),
-        Direction::RIGHT => (origin.0 + size, origin.1),
-        Direction::DOWN => (origin.0, origin.1 + size),
+    pub fn is_my_body(&self, coord: Coord) -> bool {
+        self.body
+            .iter()
+            .find(|b| b.0 == coord.0 && b.1 == coord.1)
+            .is_some()
     }
 }

@@ -1,6 +1,6 @@
 use crate::food::Food;
 use crate::snake::{Direction, Snake};
-use crate::{Coord, BLACK, BLUE};
+use crate::{get_new_coord, Coord, BLACK, BLUE};
 use graphics::Context;
 use opengl_graphics::GlGraphics;
 use piston::{RenderArgs, UpdateArgs};
@@ -13,7 +13,7 @@ pub struct Arena {
     color: [f32; 4],
     width: u32,
     height: u32,
-    stop: bool,
+    game_over: bool,
 }
 
 impl Arena {
@@ -25,7 +25,7 @@ impl Arena {
             color: BLACK,
             width,
             height,
-            stop: false,
+            game_over: false,
         }
     }
 
@@ -34,7 +34,7 @@ impl Arena {
     }
 
     pub fn render(&mut self, args: &RenderArgs) {
-        if self.stop {
+        if self.game_over {
             return;
         }
 
@@ -56,7 +56,7 @@ impl Arena {
     }
 
     pub fn press_rows(&mut self, direction: Direction) {
-        if self.stop {
+        if self.game_over {
             return;
         }
 
@@ -64,24 +64,39 @@ impl Arena {
     }
 
     pub fn update(&mut self, _args: &UpdateArgs) {
-        if self.stop {
+        if self.game_over {
             return;
         }
 
-        let head = self.snake.move_along();
+        let head = self.snake.get_head();
+        let new_direction = self.snake.direction();
+        let possible_new_head = get_new_coord(head, new_direction, 10.0);
 
-        if self.detect_food_and_eat(head) {
+        if self.snake.is_my_body(possible_new_head) {
+            self.game_over = true;
             return;
         }
 
-        if self.detect_wall_collision(head) {
-            self.stop = true;
+        if self.detect_wall_collision(possible_new_head) {
+            self.game_over = true;
             return;
         }
+
+        if self.food.is_empty() {
+            self.game_over = true;
+            return;
+        }
+
+        self.detect_food_and_eat(possible_new_head);
+
+        self.snake.move_along();
     }
 
     fn detect_wall_collision(&mut self, head: Coord) -> bool {
-        head.0 == 0.0 || head.1 == 0.0
+        head.0 == 0.0
+            || head.0 == (self.width - 10) as f64
+            || head.1 == 0.0
+            || head.1 == (self.height - 10) as f64
     }
 
     fn detect_food_and_eat(&mut self, head: Coord) -> bool {

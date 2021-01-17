@@ -54,3 +54,12 @@ fn main() {
         }
     }
 }
+
+fn get_new_coord(origin: Coord, direction: Direction, size: f64) -> Coord {
+    match direction {
+        Direction::UP => (origin.0, origin.1 - size),
+        Direction::LEFT => (origin.0 - size, origin.1),
+        Direction::RIGHT => (origin.0 + size, origin.1),
+        Direction::DOWN => (origin.0, origin.1 + size),
+    }
+}
