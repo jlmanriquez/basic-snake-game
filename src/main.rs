@@ -43,7 +43,7 @@ fn main() {
                 Key::Right => Direction::RIGHT,
                 Key::Down => Direction::DOWN,
                 Key::Left => Direction::LEFT,
-                _ => arena.snake().direction().clone(),
+                _ => arena.snake().direction(),
             };
 
             arena.press_rows(direction);
